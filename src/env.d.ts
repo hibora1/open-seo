@@ -28,7 +28,7 @@ declare namespace Cloudflare {
     // oxlint-disable-next-line typescript-eslint/consistent-type-imports
     AUDIT_ENGINE: Service<typeof import("./audit-worker").default>;
 
-    AUTH_MODE?: "cloudflare_access" | "local_noauth" | "hosted";
+    AUTH_MODE?: "cloudflare_access" | "local_noauth" | "hosted" | "password";
     BYPASS_EMAIL_VERIFICATION?: string;
     TEAM_DOMAIN?: string;
     POLICY_AUD?: string;
@@ -39,12 +39,16 @@ declare namespace Cloudflare {
     // Encrypts saved Shopify crawler signatures. Kept separate from
     // BETTER_AUTH_SECRET so the audit worker never holds the auth secret.
     CRAWLER_ACCESS_SECRET?: string;
+    // Private Ed25519 JWK that signs site audit requests (Web Bot Auth). Hosted
+    // only; unset sends unsigned requests.
+    WEB_BOT_AUTH_JWK?: string;
     DATABASE_PROVIDER?: "d1" | "postgres";
     HYPERDRIVE?: {
       connectionString: string;
     };
     GOOGLE_CLIENT_ID?: string;
     GOOGLE_CLIENT_SECRET?: string;
+    GOOGLE_MAPS_API_KEY?: string;
     LOOPS_API_KEY?: string;
     LOOPS_TRANSACTIONAL_VERIFY_EMAIL_ID?: string;
     LOOPS_TRANSACTIONAL_RESET_PASSWORD_ID?: string;
@@ -71,6 +75,12 @@ declare namespace Cloudflare {
 
     // DataForSEO API Basic auth value (base64 of login:password)
     DATAFORSEO_API_KEY: string;
+    LOCAL_RANK_WORKFLOW: Workflow<
+      Parameters<
+        // oxlint-disable-next-line typescript-eslint/consistent-type-imports -- preserve ambient Env augmentation
+        import("./server").LocalRankWorkflow["run"]
+      >[0]["payload"]
+    >;
     AI_VISIBILITY_WORKFLOW: Workflow<
       (
         | { runId: string }
@@ -93,7 +103,11 @@ declare namespace Cloudflare {
 }
 
 interface ImportMetaEnv {
-  readonly AUTH_MODE?: "cloudflare_access" | "local_noauth" | "hosted";
+  readonly AUTH_MODE?:
+    | "cloudflare_access"
+    | "local_noauth"
+    | "hosted"
+    | "password";
   readonly DATABASE_PROVIDER?: "d1" | "postgres";
   readonly BYPASS_EMAIL_VERIFICATION?: string;
   readonly POSTHOG_PUBLIC_KEY?: string;
@@ -101,6 +115,7 @@ interface ImportMetaEnv {
   readonly TURNSTILE_SITE_KEY?: string;
   readonly VITE_E2E_DOMAIN_FIXTURES?: string;
   readonly VITE_E2E_KEYWORD_FIXTURES?: string;
+  readonly VITE_OPENSEO_LEGACY_DOCKER?: string;
 }
 
 interface ImportMeta {
